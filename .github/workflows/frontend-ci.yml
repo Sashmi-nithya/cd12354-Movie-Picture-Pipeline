@@ -38,7 +38,7 @@ jobs:
         run: npm ci
 
       - name: Run lint
-        run: npm run lint
+        run: npx eslint . --ignore-pattern .eslintrc.js
 
   test:
     runs-on: ubuntu-latest
