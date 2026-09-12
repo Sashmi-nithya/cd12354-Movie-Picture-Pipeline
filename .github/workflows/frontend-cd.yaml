@@ -11,8 +11,7 @@ on:
 env:
   AWS_REGION: us-east-1
   EKS_CLUSTER_NAME: cluster
-  # Insert your working backend LoadBalancer endpoint here (no trailing slash)
-  REACT_APP_MOVIE_API_URL: "http://<BACKEND_LOAD_BALANCER_EXTERNAL_IP>"
+  REACT_APP_MOVIE_API_URL: "http://afc94626a14da4893b59fbd2fe3e1405-2015353996.us-east-1.elb.amazonaws.com"
 
 jobs:
   lint:
@@ -40,7 +39,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run lint
+      - name: Auto-fix Prettier lint formatting
+        run: npm run lint -- --fix || npx prettier --write "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}"
+
+      - name: Run lint check
         run: npm run lint
 
   test:
@@ -103,6 +105,9 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v3
 
       - name: Update kubeconfig
         run: |
